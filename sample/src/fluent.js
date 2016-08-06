@@ -1,10 +1,15 @@
-import {Validator, ValidationEngine, length, required, date, datetime, email, equality, url, numericality} from 'aurelia-validatejs';
+import {inject, NewInstance} from 'aurelia-framework';
+import {ValidationController} from 'aurelia-validation';
+import {ValidationRules} from 'aurelia-validatejs';
 
+@inject(NewInstance.of(ValidationController))
 export class Fluent {
   model;
-  constructor() {
+  constructor(controller) {
+    this.controller = controller;
     this.model = new Model();
-    this.validator = new Validator(this.model)
+    
+    ValidationRules
       .ensure('firstName')
         .required()
         .length({minimum: 3, maximum: 10})
@@ -25,26 +30,23 @@ export class Fluent {
       .ensure('age')
         .numericality({ onlyInteger: true, lessThan: 115, greaterThan: 0 })
       .ensure('zipCode')
-        .format(/\d{5}(-\d{4})?/);
+        .format(/\d{5}(-\d{4})?/)
+      .on(this.model);
+  }
 
-    this.reporter = ValidationEngine.getValidationReporter(this.model);
-    this.observer = this.reporter.subscribe(result => {
-      console.log(result);
-    });
-  }
   validate() {
-    this.validator.validate();
-  }
-  detached() {
-    this.observer.dispose();
+    var errors = this.controller.validate();
+    if (errors.length === 0) {
+      alert('Submitted successfully');
+    } else {
+      alert('Form has errors');
+    }
   }
 }
 
 class Model {
   firstName = 'Luke';
   lastName = 'Skywalker';
-  // @date lastUpdated = new Date();
-  // @datetime lastTimeUpdated = new Date();
   email = 'luke@skywalker.net';
   password = 'equal';
   confirmPassword = 'equal';

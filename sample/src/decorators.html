@@ -1,10 +1,5 @@
 <template>
-  <form class="container">
-    <ul class="list-unstyled">
-      <li repeat.for="error of errors">
-        <span class="text-danger">${error.message}</span>
-      </li>
-    </ul>
+  <form class="container" validation-renderer="bootstrap-form">
     <div>
       <label class="form-group">
         <strong>First Name</strong>

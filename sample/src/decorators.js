@@ -1,36 +1,23 @@
-import {inject} from 'aurelia-framework';
+import {inject, NewInstance} from 'aurelia-framework';
 import {length, required, date, datetime, email, equality, exclusion, inclusion, format, url, numericality} from 'aurelia-validatejs';
-import {ValidationEngine} from 'aurelia-validatejs';
+import {ValidationController} from 'aurelia-validation';
 
+@inject(NewInstance.of(ValidationController))
 export class Decorators {
   model;
-  errors = [];
-  subscriber;
-  constructor() {
+
+  constructor(controller) {
+    this.controller = controller;
     this.model = new Model();
-    this.reporter = ValidationEngine.getValidationReporter(this.model);
-    this.subscriber = this.reporter.subscribe(result => {
-      this.renderErrors(result);
-    });
   }
-  detached() {
-    this.subscriber.dispose();
-  }
+
   submit() {
-    if (!this.hasErrors()) {
+    var errors = this.controller.validate();
+    if (errors.length === 0) {
       alert('Submitted successfully');
     } else {
       alert('Form has errors');
     }
-  }
-  hasErrors() {
-    return !!this.errors.length;
-  }
-  renderErrors(result) {
-    this.errors.splice(0, this.errors.length);
-    result.forEach(error => {
-      this.errors.push(error)
-    });
   }
 }
 
